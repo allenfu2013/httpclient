@@ -48,4 +48,28 @@ public class HttpClientSampleTest {
         System.out.println("city: " + result.getCity());
     }
 
+    @Test
+    public void testDoHttpGet3() throws IOException {
+        String url = "http://localhost:8080/springmvc/user/get-by-name";
+        Map<String, String> param = new HashMap<>();
+        param.put("name", "张%三");
+        String result = httpClientSample.doHttpGet(url, param, String.class);
+        System.out.println(result);
+    }
+
+    @Test
+    public void testDoHttpPost() throws Exception {
+        Map<String, String> param = new HashMap<>();
+        param.put("id", "15");
+        param.put("name", "张%三");
+        String result = httpClientSample.doHttpPost("http://localhost:8080/springmvc/user/add", param, String.class);
+        System.out.println(result);
+    }
+
+    @Test
+    public void testDoHttpPostJson() throws Exception {
+        String json = "{\"name\":\"孙大%圣\"}";
+        String result = httpClientSample.doHttpPostJson("http://localhost:8080/springmvc/user/create", json, String.class);
+        System.out.println(result);
+    }
 }
