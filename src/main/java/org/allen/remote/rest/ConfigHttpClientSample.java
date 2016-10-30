@@ -25,8 +25,8 @@ public class ConfigHttpClientSample extends AbstractHttpExecutor {
 
     private PoolingHttpClientConnectionManager clientConnManager;
 
-    private int maxTotal = 10;
-    private int maxPerRoute = 5;
+    private int maxTotal = 200;
+    private int maxPerRoute = 20;
     private int socketTimeout = 3000;
     private boolean socketKeepAlive = true;
     private boolean tcpNoDelay = true;
