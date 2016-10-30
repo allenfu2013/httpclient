@@ -2,7 +2,6 @@ package org.allen.remote.rest;
 
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
-import com.sun.istack.internal.NotNull;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -73,7 +72,7 @@ public class HttpClientSample {
      * @return
      * @throws Exception
      */
-    public <T> T get(@NotNull String url, Map<String, String> parameters, Class<T> t) throws Exception {
+    public <T> T get(String url, Map<String, String> parameters, Class<T> t) throws Exception {
         if (parameters != null && parameters.size() > 0) {
             StringBuilder queryString = new StringBuilder("?");
             for (Map.Entry<String, String> entry : parameters.entrySet()) {
@@ -96,7 +95,7 @@ public class HttpClientSample {
      * @return
      * @throws Exception
      */
-    public <T> T post(@NotNull String url, Map<String, String> parameters, Class<T> t) throws Exception {
+    public <T> T post(String url, Map<String, String> parameters, Class<T> t) throws Exception {
         HttpPost httpPost = new HttpPost(url);
         if (parameters != null && parameters.size() > 0) {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
