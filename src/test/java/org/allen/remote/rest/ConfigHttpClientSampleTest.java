@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class ConfigHttpClientSampleTest {
 
-    private static ConfigHttpClientSample httpClientSample = new ConfigHttpClientSample();
+    private static ConfigurableHttpClient httpClientSample = new ConfigurableHttpClient();
 
     long start;
     long end;
@@ -52,7 +52,7 @@ public class ConfigHttpClientSampleTest {
 
     @Test
     public void getGet3() {
-        String result = httpClientSample.get("https://localhost:8443/imocker/admin/query-all-api", null, String.class);
+        String result = httpClientSample.get("https://localhost:8443/imocker/admin/query-all-api", String.class);
         System.out.println(result);
     }
 
