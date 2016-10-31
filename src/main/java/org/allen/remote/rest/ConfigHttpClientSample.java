@@ -17,13 +17,12 @@ import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ConfigHttpClientSample extends AbstractHttpExecutor {
 
     private CloseableHttpClient httpClient;
-
-    private PoolingHttpClientConnectionManager clientConnManager;
 
     private int maxTotal = 200;
     private int maxPerRoute = 20;
@@ -31,7 +30,7 @@ public class ConfigHttpClientSample extends AbstractHttpExecutor {
     private boolean socketKeepAlive = true;
     private boolean tcpNoDelay = true;
     private int socketLinger = 1000;
-    private int connTimeToLive = 5000;
+    private int connTimeToLive = -1;
 
     public ConfigHttpClientSample() {
         httpClient = HttpClientBuilder.create()
@@ -44,7 +43,7 @@ public class ConfigHttpClientSample extends AbstractHttpExecutor {
                 buildSSLContext(),
                 SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
-        clientConnManager = new PoolingHttpClientConnectionManager(
+        PoolingHttpClientConnectionManager clientConnManager = new PoolingHttpClientConnectionManager(
                 RegistryBuilder.<ConnectionSocketFactory>create()
                         .register("http", PlainConnectionSocketFactory.getSocketFactory())
                         .register("https", sslSocketFactory)
@@ -94,6 +93,34 @@ public class ConfigHttpClientSample extends AbstractHttpExecutor {
         return sslContext;
     }
 
+    public <T> T get(String url, Class<T> t) throws HttpException {
+        return get(url, null, null, t, -1);
+    }
+
+    public <T> T get(String url, Class<T> t, int timeout) throws HttpException {
+        return get(url, null, null, t, timeout);
+    }
+
+    public <T> T get(String url, Map<String, String> parameters, Class<T> t) throws HttpException {
+        return get(url, null, parameters, t, -1);
+    }
+
+    public <T> T post(String url, Class<T> t) throws HttpException {
+        return post(url, null, null, t, -1);
+    }
+
+    public <T> T post(String url, Class<T> t, int timeout) throws HttpException {
+        return post(url, null, null, t, timeout);
+    }
+
+    public <T> T post(String url, Map<String, String> parameters, Class<T> t) throws HttpException {
+        return post(url, null, parameters, t, -1);
+    }
+
+    public <T> T postJson(String url, String json, Class<T> t) throws HttpException {
+        return postJson(url, null, json, t, -1);
+    }
+
     @Override
     protected CloseableHttpClient getHttpClient() {
         return httpClient;
@@ -101,7 +128,6 @@ public class ConfigHttpClientSample extends AbstractHttpExecutor {
 
     public void close() {
         try {
-            clientConnManager.close();
             httpClient.close();
         } catch (IOException e) {
             throw new HttpException(e.getMessage(), e);

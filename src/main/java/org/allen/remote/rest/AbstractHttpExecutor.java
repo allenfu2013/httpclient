@@ -23,20 +23,8 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
 
     protected abstract CloseableHttpClient getHttpClient();
 
-    public <T> T get(String url, Class<T> t) throws HttpException {
-        return get(url, null, t, -1);
-    }
-
-    public <T> T get(String url, Class<T> t, int timeout) throws HttpException {
-        return get(url, null, t, timeout);
-    }
-
-    public <T> T get(String url, Map<String, String> parameters, Class<T> t) throws HttpException {
-        return get(url, parameters, t, -1);
-    }
-
     @Override
-    public <T> T get(String url, Map<String, String> parameters, Class<T> t, int timeout) throws HttpException {
+    public <T> T get(String url, Map<String, String> headers, Map<String, String> parameters, Class<T> t, int timeout) throws HttpException {
         if (parameters != null && parameters.size() > 0) {
             StringBuilder queryString = new StringBuilder("?");
             for (Map.Entry<String, String> entry : parameters.entrySet()) {
@@ -49,23 +37,11 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
             url += queryString.substring(0, queryString.length() - 1);
         }
         HttpGet httpGet = new HttpGet(url);
-        return doExecute(httpGet, t, timeout);
-    }
-
-    public <T> T post(String url, Class<T> t) throws HttpException {
-        return post(url, null, t, -1);
-    }
-
-    public <T> T post(String url, Class<T> t, int timeout) throws HttpException {
-        return post(url, null, t, timeout);
-    }
-
-    public <T> T post(String url, Map<String, String> parameters, Class<T> t) throws HttpException {
-        return post(url, parameters, t, -1);
+        return doExecute(httpGet, headers, t, timeout);
     }
 
     @Override
-    public <T> T post(String url, Map<String, String> parameters, Class<T> t, int timeout) throws HttpException {
+    public <T> T post(String url, Map<String, String> headers, Map<String, String> parameters, Class<T> t, int timeout) throws HttpException {
         HttpPost httpPost = new HttpPost(url);
         if (parameters != null && parameters.size() > 0) {
             List<NameValuePair> params = new ArrayList<>();
@@ -78,22 +54,18 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
                 throw new HttpException(e.getMessage(), e);
             }
         }
-        return doExecute(httpPost, t, timeout);
-    }
-
-    public <T> T postJson(String url, String json, Class<T> t) throws HttpException {
-        return postJson(url, json, t, -1);
+        return doExecute(httpPost, headers, t, timeout);
     }
 
     @Override
-    public <T> T postJson(String url, String json, Class<T> t, int timeout) throws HttpException {
+    public <T> T postJson(String url, Map<String, String> headers, String json, Class<T> t, int timeout) throws HttpException {
         StringEntity stringEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
         HttpPost httpPost = new HttpPost(url);
         httpPost.setEntity(stringEntity);
-        return doExecute(httpPost, t, timeout);
+        return doExecute(httpPost, headers, t, timeout);
     }
 
-    private <T> T doExecute(HttpRequestBase request, Class<T> t, int timeout) throws HttpException {
+    private <T> T doExecute(HttpRequestBase request, Map<String, String> headers, Class<T> t, int timeout) throws HttpException {
         // set request header
         request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36");
         request.setHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
@@ -103,6 +75,13 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
         // set request read timeout
         if (timeout > 0) {
             request.setConfig(RequestConfig.custom().setSocketTimeout(timeout).build());
+        }
+
+        // set request header
+        if (headers != null && headers.size() > 0) {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                request.setHeader(header.getKey(), header.getValue());
+            }
         }
 
         CloseableHttpResponse response = null;
