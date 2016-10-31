@@ -40,7 +40,9 @@ public class ConfigHttpClientSample extends AbstractHttpExecutor {
     }
 
     private HttpClientConnectionManager buildClientConnManager() {
-        LayeredConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(buildSSLContext());
+        LayeredConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
+                buildSSLContext(),
+                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
         clientConnManager = new PoolingHttpClientConnectionManager(
                 RegistryBuilder.<ConnectionSocketFactory>create()
