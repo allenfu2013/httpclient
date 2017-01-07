@@ -37,7 +37,26 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
             url += queryString.substring(0, queryString.length() - 1);
         }
         HttpGet httpGet = new HttpGet(url);
-        return doExecute(httpGet, headers, t, timeout);
+        String content = doExecute(httpGet, headers, timeout);
+        return parseObject(content, t);
+    }
+
+    @Override
+    public <T> List<T> getList(String url, Map<String, String> headers, Map<String, String> parameters, Class<T> t, int timeout) throws HttpException {
+        if (parameters != null && parameters.size() > 0) {
+            StringBuilder queryString = new StringBuilder("?");
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+                try {
+                    queryString.append(entry.getKey()).append("=").append(URLEncoder.encode(entry.getValue(), "UTF-8")).append("&");
+                } catch (UnsupportedEncodingException e) {
+                    throw new HttpException(e.getMessage(), e);
+                }
+            }
+            url += queryString.substring(0, queryString.length() - 1);
+        }
+        HttpGet httpGet = new HttpGet(url);
+        String content = doExecute(httpGet, headers, timeout);
+        return parseList(content, t);
     }
 
     @Override
@@ -54,7 +73,26 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
                 throw new HttpException(e.getMessage(), e);
             }
         }
-        return doExecute(httpPost, headers, t, timeout);
+        String content = doExecute(httpPost, headers, timeout);
+        return parseObject(content, t);
+    }
+
+    @Override
+    public <T> List<T> postList(String url, Map<String, String> headers, Map<String, String> parameters, Class<T> t, int timeout) throws HttpException {
+        HttpPost httpPost = new HttpPost(url);
+        if (parameters != null && parameters.size() > 0) {
+            List<NameValuePair> params = new ArrayList<>();
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+                params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+            }
+            try {
+                httpPost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new HttpException(e.getMessage(), e);
+            }
+        }
+        String content = doExecute(httpPost, headers, timeout);
+        return parseList(content, t);
     }
 
     @Override
@@ -62,10 +100,20 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
         StringEntity stringEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
         HttpPost httpPost = new HttpPost(url);
         httpPost.setEntity(stringEntity);
-        return doExecute(httpPost, headers, t, timeout);
+        String content = doExecute(httpPost, headers, timeout);
+        return parseObject(content, t);
     }
 
-    private <T> T doExecute(HttpRequestBase request, Map<String, String> headers, Class<T> t, int timeout) throws HttpException {
+    @Override
+    public <T> List<T> postJsonList(String url, Map<String, String> headers, String json, Class<T> t, int timeout) throws HttpException {
+        StringEntity stringEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.setEntity(stringEntity);
+        String content = doExecute(httpPost, headers, timeout);
+        return parseList(content, t);
+    }
+
+    private String doExecute(HttpRequestBase request, Map<String, String> headers, int timeout) throws HttpException {
         // set request header
         request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36");
         request.setHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
@@ -94,17 +142,7 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
             long t2 = System.currentTimeMillis();
             System.out.println(String.format("##### request: %s, took: %s", request.getURI(), (t2 - t1)));
             in = response.getEntity().getContent();
-            String content = IOUtils.toString(in, "UTF-8");
-            if (t == String.class) {
-                return (T) content;
-            } else {
-                long t3 = System.currentTimeMillis();
-                T ret = JSON.parseObject(content, t);
-                // T ret = new Gson().fromJson(content, t);
-                long t4 = System.currentTimeMillis();
-                System.out.println("##### parseJson took: " + (t4 - t3));
-                return ret;
-            }
+            return IOUtils.toString(in, "UTF-8");
         } catch (Exception e) {
             throw new HttpException(e.getMessage(), e);
         } finally {
@@ -124,4 +162,25 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
             }
         }
     }
+
+    private <T> T parseObject(String content, Class<T> t) {
+        if (t == String.class) {
+            return (T) content;
+        } else {
+            try {
+                return JSON.parseObject(content, t);
+            } catch (Exception e) {
+                throw new HttpException(e.getMessage(), e);
+            }
+        }
+    }
+
+    private <T> List<T> parseList(String content, Class<T> t) {
+        try {
+            return JSON.parseArray(content, t);
+        } catch (Exception e) {
+            throw new HttpException(e.getMessage(), e);
+        }
+    }
+
 }

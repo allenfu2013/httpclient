@@ -1,6 +1,6 @@
 # httpclient-demo
 
-±¾ÏîÄ¿¶Ôhttpclient½øĞĞÁË·â×°£¬·½±ãÔÚspringÅäÖÃÊ¹ÓÃ£º
+æœ¬é¡¹ç›®å¯¹httpclientè¿›è¡Œäº†å°è£…ï¼Œæ–¹ä¾¿åœ¨springé…ç½®ä½¿ç”¨ï¼š
 
 ```java
 
@@ -14,7 +14,7 @@
     <property name="connTimeToLive" value="-1"/>
 </bean>
     
-<bean id="httpClient" class="org.allen.remote.rest.ConfigurableHttpClient" destroy-method="close">
+<bean id="httpClient" class="org.allen.remote.rest.HttpRemoteService" destroy-method="close">
     <constructor-arg name="httpClientConfig" ref="httpClientConfig"/>
 </bean>
 
@@ -47,7 +47,7 @@ POST JSON
 ```java
 
 String url = "http://localhost:8080/services/users/create";
-String json = "{\"name\":\"ÕÅÈı\", \"age\":20}"
+String json = "{\"name\":\"å¼ ä¸‰\", \"age\":20}"
 // set socket timeout
 User user = httpClient.post(url, json, User.class, 3000);
 ```
