@@ -8,9 +8,9 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConfigHttpClientSampleTest {
+public class HttpRemoteServiceTest {
 
-    private static ConfigurableHttpClient httpClientSample = new ConfigurableHttpClient();
+    private static HttpRemoteService httpRemoteService = new HttpRemoteService();
 
     long start;
     long end;
@@ -29,7 +29,7 @@ public class ConfigHttpClientSampleTest {
 
     @AfterClass
     public static void afterClass() {
-        httpClientSample.close();
+        httpRemoteService.close();
     }
 
     @Test
@@ -37,22 +37,22 @@ public class ConfigHttpClientSampleTest {
         Map<String, String> parameters = new HashMap<>();
         parameters.put("format", "json");
         parameters.put("ip", "180.168.36.45");
-        String result = httpClientSample.get("http://int.dpool.sina.com.cn/iplookup/iplookup.php", parameters, String.class);
+        String result = httpRemoteService.get("http://int.dpool.sina.com.cn/iplookup/iplookup.php", parameters, String.class);
         System.out.println(result);
     }
 
-//    @Test
+    //    @Test
     public void testGet2() {
         String url = "http://localhost:8080/springmvc/user/get-by-name";
         Map<String, String> param = new HashMap<>();
         param.put("name", "张%三");
-        String result = httpClientSample.get(url, param, String.class);
+        String result = httpRemoteService.get(url, param, String.class);
         System.out.println(result);
     }
 
     @Test
     public void getGet3() {
-        String result = httpClientSample.get("https://localhost:8443/imocker/admin/query-all-api", String.class);
+        String result = httpRemoteService.get("https://localhost:8443/imocker/admin/query-all-api", String.class);
         System.out.println(result);
     }
 

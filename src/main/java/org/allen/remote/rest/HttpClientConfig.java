@@ -16,7 +16,7 @@ public class HttpClientConfig {
     //
     private boolean tcpNoDelay = true;
     //
-    private int socketLinger = 1000;
+    private int socketLinger = -1;
     //
     private int connTimeToLive = -1;
 

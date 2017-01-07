@@ -1,19 +1,22 @@
 package org.allen.remote.rest;
 
 import org.apache.http.impl.client.CloseableHttpClient;
+
 import java.io.IOException;
 import java.util.Map;
 
-public class ConfigurableHttpClient extends AbstractHttpExecutor {
+public class HttpRemoteService extends AbstractHttpExecutor {
 
     private CloseableHttpClient httpClient;
+    private HttpClientConfig httpClientConfig;
 
-    public ConfigurableHttpClient() {
+    public HttpRemoteService() {
         System.out.println("************** init http client *******************");
-        httpClient = HttpClientGenerator.create().generate();
+        this.httpClientConfig = new HttpClientConfig();
+        httpClient = HttpClientGenerator.create().setHttpClientConfig(httpClientConfig).generate();
     }
 
-    public ConfigurableHttpClient(HttpClientConfig httpClientConfig) {
+    public HttpRemoteService(HttpClientConfig httpClientConfig) {
         System.out.println("************** init http client ******************");
         httpClient = HttpClientGenerator.create().setHttpClientConfig(httpClientConfig).generate();
     }
@@ -23,7 +26,7 @@ public class ConfigurableHttpClient extends AbstractHttpExecutor {
     }
 
     public <T> T get(String url, Class<T> t) throws HttpException {
-        return get(url, null, null, t, -1);
+        return get(url, null, null, t, httpClientConfig.getSocketTimeout());
     }
 
     public <T> T get(String url, Class<T> t, int timeout) throws HttpException {
@@ -31,11 +34,15 @@ public class ConfigurableHttpClient extends AbstractHttpExecutor {
     }
 
     public <T> T get(String url, Map<String, String> parameters, Class<T> t) throws HttpException {
-        return get(url, null, parameters, t, -1);
+        return get(url, null, parameters, t, httpClientConfig.getSocketTimeout());
+    }
+
+    public <T> T get(String url, Map<String, String> parameters, Class<T> t, int timeout) throws HttpException {
+        return get(url, null, parameters, t, timeout);
     }
 
     public <T> T post(String url, Class<T> t) throws HttpException {
-        return post(url, null, null, t, -1);
+        return post(url, null, null, t, httpClientConfig.getSocketTimeout());
     }
 
     public <T> T post(String url, Class<T> t, int timeout) throws HttpException {
@@ -43,11 +50,19 @@ public class ConfigurableHttpClient extends AbstractHttpExecutor {
     }
 
     public <T> T post(String url, Map<String, String> parameters, Class<T> t) throws HttpException {
-        return post(url, null, parameters, t, -1);
+        return post(url, null, parameters, t, httpClientConfig.getSocketTimeout());
+    }
+
+    public <T> T post(String url, Map<String, String> parameters, Class<T> t, int timeout) throws HttpException {
+        return post(url, null, parameters, t, timeout);
     }
 
     public <T> T postJson(String url, String json, Class<T> t) throws HttpException {
-        return postJson(url, null, json, t, -1);
+        return postJson(url, null, json, t, httpClientConfig.getSocketTimeout());
+    }
+
+    public <T> T postJson(String url, String json, Class<T> t, int timeout) throws HttpException {
+        return postJson(url, null, json, t, timeout);
     }
 
     @Override

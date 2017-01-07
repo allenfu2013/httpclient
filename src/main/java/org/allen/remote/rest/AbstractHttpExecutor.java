@@ -75,6 +75,8 @@ public abstract class AbstractHttpExecutor implements HttpOperation {
         // set request read timeout
         if (timeout > 0) {
             request.setConfig(RequestConfig.custom().setSocketTimeout(timeout).build());
+        } else {
+            System.out.println("http client timeout is set to no-timeout!!!");
         }
 
         // set request header
