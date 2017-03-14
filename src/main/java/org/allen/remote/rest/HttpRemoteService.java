@@ -21,6 +21,15 @@ public class HttpRemoteService extends AbstractHttpExecutor {
         httpClient = HttpClientGenerator.create().setHttpClientConfig(httpClientConfig).generate();
     }
 
+    public HttpRemoteService(HttpClientConfig httpClientConfig, String clientCert, String serverCert, String secret) {
+        httpClient = HttpClientGenerator.create()
+                .setHttpClientConfig(httpClientConfig)
+                .setClientCert(clientCert)
+                .setServerCert(serverCert)
+                .setSecret(secret)
+                .generate();
+    }
+
     public void setHttpClient(CloseableHttpClient httpClient) {
         this.httpClient = httpClient;
     }
